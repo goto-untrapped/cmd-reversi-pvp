@@ -1,35 +1,26 @@
 use std::io;
 
+use board::{Board, BOARD_SIZE};
+
+mod board;
+
 fn main() {
-    let mut board: [[&str;4];4] = [["-";4];4];
-    board[1][1] = "x";
-    board[1][2] = "o";
-    board[2][1] = "o";
-    board[2][2] = "x";
-    for line in board.as_mut() {
-        for mark in line.as_mut() {
-            print!("{} ", mark);
-        }
-        println!();
-    }
+    let mut board: Board = board::Board::create();
+    update_screen(&board);
 
     loop {
         let (x, y) = get_input_pos();
 
         // limit pos range
-        if 4 <= x || 4 <= y {
+        if BOARD_SIZE <= x || BOARD_SIZE <= y {
             println!("Invalid input! Please input again.");
             continue;
         }
 
         // update board by input
-        board[x][y] = "x";
-        for line in board.as_mut() {
-            for mark in line.as_mut() {
-                print!("{} ", mark);
-            }
-            println!();
-        }
+        board.board[x][y] = "x";
+
+        update_screen(&board);
     }
 }
 
@@ -44,4 +35,14 @@ fn get_input_pos() -> (usize, usize) {
     let y:usize = input_xy_iter.next().unwrap().parse::<usize>().unwrap();
     
     (x, y)
+}
+
+fn update_screen(board: &Board) {
+    print!("{}[2J", 27 as char);
+    for line in board.board {
+        for mark in line {
+            print!("{} ", mark);
+        }
+        println!();
+    }
 }
