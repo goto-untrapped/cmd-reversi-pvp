@@ -15,7 +15,11 @@ impl<'a> Board<'a> {
         board
     }
 
-    pub fn init_pos(&mut self) {
+    pub fn update_pos(&mut self, x_added: &usize, y_added: &usize) {
+        self.board[*x_added][*y_added] = "x";
+    }
+
+    fn init_pos(&mut self) {
         // top left of center
         self.board[BOARD_SIZE / 2 - 1][BOARD_SIZE / 2 - 1] = "x";
         // top right of center
