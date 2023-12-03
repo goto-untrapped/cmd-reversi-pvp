@@ -39,7 +39,16 @@ fn get_input_pos() -> (usize, usize) {
 
 fn update_screen(board: &Board) {
     print!("{}[2J", 27 as char);
+    for x_index in 0..=BOARD_SIZE {
+        print!("{} ", x_index);
+    }
+    println!();
+
+    let mut y_index = 1;
     for line in board.board {
+        print!("{} ", y_index);
+        y_index +=1;
+
         for mark in line {
             print!("{} ", mark);
         }
