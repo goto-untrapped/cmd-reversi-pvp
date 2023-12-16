@@ -5,31 +5,31 @@ use board::{Board, BOARD_SIZE};
 mod board;
 
 fn main() {
-    let mut board: Board = board::Board::create();
+    let mut board: Board = board::Board::created();
     update_screen(&board);
 
     loop {
         // place black stone
-        let (x, y) = get_input_pos();
-        if is_input_invalid(&x, &y) {
+        let (x, y) = got_input_pos();
+        if was_input_invalid(&x, &y) {
             continue;
         }
         board.add_black_pos(&x, &y);
-        board.update_stones_color();
+        board.turn_over_stones();
         update_screen(&board);
 
         // place white stone
-        let (x, y) = get_input_pos();
-        if is_input_invalid(&x, &y) {
+        let (x, y) = got_input_pos();
+        if was_input_invalid(&x, &y) {
             continue;
         }
         board.add_white_pos(&x, &y);
-        board.update_stones_color();
+        board.turn_over_stones();
         update_screen(&board);
     }
 }
 
-fn get_input_pos() -> (usize, usize) {
+fn got_input_pos() -> (usize, usize) {
     let mut input_xy = String::new();
     io::stdin()
         .read_line(&mut input_xy)
@@ -42,7 +42,7 @@ fn get_input_pos() -> (usize, usize) {
     (x, y)
 }
 
-fn is_input_invalid(x: &usize, y: &usize) -> bool {
+fn was_input_invalid(x: &usize, y: &usize) -> bool {
     // invalid: input position is outside of board
     if BOARD_SIZE <= *x || BOARD_SIZE <= *y {
         println!("Invalid input! Please input again.");
