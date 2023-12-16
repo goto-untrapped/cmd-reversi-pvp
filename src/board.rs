@@ -227,6 +227,11 @@ impl<'a> Board<'a> {
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
     }
 
+    // fn get_offset(x_added: &usize, y_added: &usize) -> usize {
+    //     if (x_added)
+
+    // }
+
     fn append_to_bottom_left_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
         if y_added == 0 {
             return
