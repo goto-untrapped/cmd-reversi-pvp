@@ -1,6 +1,7 @@
 use std::io;
 
-use board::{Board, BOARD_SIZE};
+use board::{Board, BOARD_SIZE, StoneType};
+
 
 mod board;
 
@@ -15,7 +16,7 @@ fn main() {
             continue;
         }
         board.add_black_pos(&x, &y);
-        board.turn_over_white_stones(x, y);
+        board.turn_over_stones(x, y, StoneType::BlackStone);
         update_screen(&board);
 
         // place white stone
@@ -24,7 +25,7 @@ fn main() {
             continue;
         }
         board.add_white_pos(&x, &y);
-        // board.turn_over_stones();
+        board.turn_over_stones(x, y, StoneType::WhiteStone);
         update_screen(&board);
     }
 }
