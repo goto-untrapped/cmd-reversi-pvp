@@ -46,6 +46,7 @@ impl<'a> Board<'a> {
             // if found white, record to turn over
             if self.board[x][y_added] == WHITE_STONE {
                 to_top_pos_vec_to_turn_over.push((x, y_added));
+                continue;
             }
             // if found black, break
             if self.board[x][y_added] == BLACK_STONE {
@@ -62,10 +63,48 @@ impl<'a> Board<'a> {
         // ↓
 
         // ←
+        let mut to_left_pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
+        for y in (0..=y_added-1).rev() {
+            // if found white, record to turn over
+            if self.board[x_added][y] == WHITE_STONE {
+                to_left_pos_vec_to_turn_over.push((x_added, y));
+                continue;
+            }
+            // if found black, break
+            if self.board[x_added][y] == BLACK_STONE {
+                break;
+            }
+            // if found space, empty tmp vec and break
+            if self.board[x_added][y_added] == NO_STONE {
+                to_left_pos_vec_to_turn_over.clear();
+                break;
+            }
+        }
+        pos_vec_to_turn_over.append(&mut to_left_pos_vec_to_turn_over);
 
         // →
 
         // ↖
+        let mut to_top_left_pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
+        for offset in 1..=x_added {
+            let x_offset = x_added - offset;
+            let y_offset = y_added - offset;
+            // if found white, record to turn over
+            if self.board[x_offset][y_offset] == WHITE_STONE {
+                to_top_left_pos_vec_to_turn_over.push((x_offset, y_offset));
+                continue;
+            }
+            // if found black, break
+            if self.board[x_offset][y_offset] == BLACK_STONE {
+                break;
+            }
+            // if found space, empty tmp vec and break
+            if self.board[x_offset][y_offset] == NO_STONE {
+                to_top_left_pos_vec_to_turn_over.clear();
+                break;
+            }
+        }
+        pos_vec_to_turn_over.append(&mut to_top_left_pos_vec_to_turn_over);
 
         // ↙
 
@@ -77,6 +116,10 @@ impl<'a> Board<'a> {
         Self::update_stones_color(self, &pos_vec_to_turn_over);
     }
 
+    fn added_stones_pos_to_turn_over(&mut self, x: &usize, y: &usize) {
+
+    }
+
     fn init_pos(&mut self) {
         // top left of center
         self.board[BOARD_SIZE / 2 - 1][BOARD_SIZE / 2 - 1] = WHITE_STONE;
@@ -86,10 +129,6 @@ impl<'a> Board<'a> {
         self.board[BOARD_SIZE / 2][BOARD_SIZE / 2 - 1] = BLACK_STONE;
         // bottom right of center
         self.board[BOARD_SIZE / 2][BOARD_SIZE / 2] = WHITE_STONE;
-    }
-
-    fn added_stones_pos_to_turn_over(&mut self, x: &usize, y: &usize) {
-
     }
 
     fn update_stones_color(&mut self, pos_vec_to_turn_over: &Vec<(usize, usize)>) {
