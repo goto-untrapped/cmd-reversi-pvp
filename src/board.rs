@@ -63,7 +63,6 @@ impl<'a> Board<'a> {
         // ↘
         Self::append_to_bottom_right_pos_to_turn_over(self, &mut pos_vec_to_turn_over, x_added, y_added, &to_turn_over_stone_type, &my_stone_type);
 
-        // call another method to update stone colors
         Self::update_stones_color(self, &pos_vec_to_turn_over, &to_turn_over_stone_type);
     }
 
@@ -79,6 +78,8 @@ impl<'a> Board<'a> {
             return;
         }
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
+        let mut is_end_stone_not_exist = true;
+
         for x in (0..=x_added-1).rev() {
             // if found to turn over stone, record
             if self.board[x][y_added] == to_turn_over_stone_type.as_str() {
@@ -87,6 +88,7 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x][y_added] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
@@ -95,12 +97,18 @@ impl<'a> Board<'a> {
                 break;
             }
         }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
+        }
 
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
     }
 
     fn append_to_bottom_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
+        let mut is_end_stone_not_exist = true;
+
         for x in x_added+1..=BOARD_SIZE-1 {
             // if found to turn over stone, record
             if self.board[x][y_added] == to_turn_over_stone_type.as_str() {
@@ -109,6 +117,7 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x][y_added] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
@@ -116,6 +125,10 @@ impl<'a> Board<'a> {
                 vec_to_turn_over.clear();
                 break;
             }
+        }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
         }
 
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
@@ -126,6 +139,8 @@ impl<'a> Board<'a> {
             return;
         }
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
+        let mut is_end_stone_not_exist = true;
+
         for y in (0..=y_added-1).rev() {
             // if found to turn over stone, record
             if self.board[x_added][y] == to_turn_over_stone_type.as_str() {
@@ -134,19 +149,27 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x_added][y] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
-            if self.board[x_added][y_added] == StoneType::NoStone.as_str() {
+            if self.board[x_added][y] == StoneType::NoStone.as_str() {
                 vec_to_turn_over.clear();
                 break;
             }
         }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
+        }
+
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
     }
 
     fn append_to_right_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
+        let mut is_end_stone_not_exist = true;
+
         for y in y_added+1..BOARD_SIZE-1 {
             // if found to turn over stone, record
             if self.board[x_added][y] == to_turn_over_stone_type.as_str() {
@@ -155,22 +178,29 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x_added][y] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
-            if self.board[x_added][y_added] == StoneType::NoStone.as_str() {
+            if self.board[x_added][y] == StoneType::NoStone.as_str() {
                 vec_to_turn_over.clear();
                 break;
             }
         }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
+        }
+
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
     }
 
     fn append_to_top_left_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
-        let max_offset = Self::get_max_offset(&x_added, &y_added);
+        let min_offset = Self::get_min_offset(&x_added, &y_added);
+        let mut is_end_stone_not_exist = true;
         
-        for offset in 1..=max_offset {
+        for offset in 1..=min_offset {
             let x_offset = x_added - offset;
             let y_offset = y_added - offset;
             // if found to turn over stone, record
@@ -180,6 +210,7 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x_offset][y_offset] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
@@ -188,13 +219,21 @@ impl<'a> Board<'a> {
                 break;
             }
         }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
+        }
 
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
     }
 
     fn append_to_bottom_left_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
+        if y_added == 0 {
+            return
+        }
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
         let max_offset = Self::get_max_offset(&x_added, &y_added);
+        let mut is_end_stone_not_exist = true;
 
         for offset in 1..=BOARD_SIZE-max_offset-1 {
             let x_offset = x_added + offset;
@@ -206,6 +245,7 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x_offset][y_offset] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
@@ -214,15 +254,20 @@ impl<'a> Board<'a> {
                 break;
             }
         }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
+        }
 
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
     }
 
     fn append_to_top_right_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
-        let max_offset = Self::get_max_offset(&x_added, &y_added);
+        let min_offset = Self::get_min_offset(&x_added, &y_added);
+        let mut is_end_stone_not_exist = true;
 
-        for offset in 1..=max_offset {
+        for offset in 1..=min_offset {
             let x_offset = x_added - offset;
             let y_offset = y_added + offset;
             // if found to turn over stone, record
@@ -232,6 +277,7 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x_offset][y_offset] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
@@ -239,6 +285,10 @@ impl<'a> Board<'a> {
                 vec_to_turn_over.clear();
                 break;
             }
+        }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
         }
 
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
@@ -247,10 +297,11 @@ impl<'a> Board<'a> {
     fn append_to_bottom_right_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
         let mut vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
         let max_offset = Self::get_max_offset(&x_added, &y_added);
+        let mut is_end_stone_not_exist = true;
 
         for offset in 1..=BOARD_SIZE-max_offset-1 {
-            let x_offset = x_added - offset;
-            let y_offset = y_added - offset;
+            let x_offset = x_added + offset;
+            let y_offset = y_added + offset;
             // if found to turn over stone, record
             if self.board[x_offset][y_offset] == to_turn_over_stone_type.as_str() {
                 vec_to_turn_over.push((x_offset, y_offset));
@@ -258,6 +309,7 @@ impl<'a> Board<'a> {
             }
             // if found my stone, break
             if self.board[x_offset][y_offset] == my_stone_type.as_str() {
+                is_end_stone_not_exist = false;
                 break;
             }
             // if found space, empty to added vec and break
@@ -266,12 +318,23 @@ impl<'a> Board<'a> {
                 break;
             }
         }
+        // if to turn over vec don't has end my stone, don't turn over stones
+        if is_end_stone_not_exist {
+            vec_to_turn_over.clear();
+        }
 
         pos_vec_to_turn_over.append(&mut vec_to_turn_over);
     }
 
-    fn get_max_offset(x_added: &usize, y_added: &usize) -> usize {
+    fn get_min_offset(x_added: &usize, y_added: &usize) -> usize {
         if x_added < y_added {
+            return *x_added
+        }
+        *y_added
+    }
+
+    fn get_max_offset(x_added: &usize, y_added: &usize) -> usize {
+        if y_added < x_added {
             return *x_added
         }
         *y_added

@@ -55,7 +55,8 @@ fn was_input_invalid(x: &usize, y: &usize) -> bool {
 
 fn update_screen(board: &Board) {
     // clear the screen
-    print!("{}[2J", 27 as char);
+    // print!("{}[2J", 27 as char);
+    println!();
 
     // decorate screen: show x position
     print!("  ");
