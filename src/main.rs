@@ -15,7 +15,7 @@ fn main() {
             continue;
         }
         board.add_black_pos(&x, &y);
-        board.turn_over_stones();
+        board.turn_over_white_stones(x, y);
         update_screen(&board);
 
         // place white stone
@@ -24,7 +24,7 @@ fn main() {
             continue;
         }
         board.add_white_pos(&x, &y);
-        board.turn_over_stones();
+        // board.turn_over_stones();
         update_screen(&board);
     }
 }

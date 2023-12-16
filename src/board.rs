@@ -27,7 +27,7 @@ impl<'a> Board<'a> {
         self.board[*x_added][*y_added] = WHITE_STONE;
     }
 
-    pub fn turn_over_stones(&mut self) {
+    pub fn turn_over_white_stones(&mut self, x_added: usize, y_added: usize) {
         /* 
         inspect 8 directions.
 
@@ -39,37 +39,40 @@ impl<'a> Board<'a> {
 
         // define new vec to record all stones pos to turn over
         let mut pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
-        // direction: to top
-        // loop self board by decrease y pos to 0
-        let mut one_line_pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
-        // for (x, line) in self.board.iter().enumerate() {
-        for x in 1..=BOARD_SIZE {
-            let mut one_column_pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
-            // TODO: can not enter loop
-            for y in x-1..=0 {
-            // for (y, _column) in line.iter().enumerate() {
-                // if found white, get position and put to vec
-                if self.board[x][y] == WHITE_STONE {
-                    one_column_pos_vec_to_turn_over.push((x, y));
-                }
-                // if found black, break
-                if self.board[x][y] == BLACK_STONE {
-                    break;
-                }
-                // if found space, empty tmp vec and break
-                if self.board[x][y] == NO_STONE {
-                    one_column_pos_vec_to_turn_over.clear();
-                    break;
-                }
+
+        // ↑
+        let mut to_top_pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
+        for x in (0..=x_added-1).rev() {
+            // if found white, record to turn over
+            if self.board[x][y_added] == WHITE_STONE {
+                to_top_pos_vec_to_turn_over.push((x, y_added));
             }
-            // put one_column_pos_vec_to_turn_over to one_line_pos_vec_to_turn_over
-            one_line_pos_vec_to_turn_over.append(&mut one_column_pos_vec_to_turn_over);
+            // if found black, break
+            if self.board[x][y_added] == BLACK_STONE {
+                break;
+            }
+            // if found space, empty tmp vec and break
+            if self.board[x][y_added] == NO_STONE {
+                to_top_pos_vec_to_turn_over.clear();
+                break;
+            }
         }
-        //   define new tmp vec to record stones pos to turn over 
-        // if tmp vec is not empty, put tmp vec to record vec
-        pos_vec_to_turn_over.append(&mut one_line_pos_vec_to_turn_over);
+        pos_vec_to_turn_over.append(&mut to_top_pos_vec_to_turn_over);
 
+        // ↓
 
+        // ←
+
+        // →
+
+        // ↖
+
+        // ↙
+
+        // ↗
+
+        // ↘
+        
         // call another method to update stone colors
         Self::update_stones_color(self, &pos_vec_to_turn_over);
     }
