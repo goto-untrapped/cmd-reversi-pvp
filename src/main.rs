@@ -8,8 +8,10 @@ mod board;
 fn main() {
     let mut board: Board = board::Board::created();
     update_screen(&board);
+    let mut put_stone_count = 1;
 
     loop {
+        
         // put black stone
         let (x, y);
         match got_input_pos() {
@@ -26,25 +28,15 @@ fn main() {
             print_input_error_message();
             continue;
         }
-        board.add_black_pos(&x, &y);
-        board.turn_over_stones(x, y, StoneType::BlackStone);
+        let my_stone_type = get_my_turn_stone_color(&mut put_stone_count);
+        // if input stone position can't turn over any stones, need again
+        if !board.add_input_stone_pos(&x, &y, &my_stone_type) {
+            println!("can't turn over any stones, choose another position");
+            continue;
+        }
         update_screen(&board);
+        put_stone_count += 1;
 
-        // put white stone
-        let (x, y);
-        match got_input_pos() {
-            Some((x_input, y_input)) => {
-                (x, y) = (x_input, y_input)
-            },
-            None => {
-                print_input_error_message();
-                continue;
-            },
-        };
-        board.add_white_pos(&x, &y);
-        board.turn_over_stones(x, y, StoneType::WhiteStone);
-        update_screen(&board);
-        
         // game set
         if board.is_no_pos_to_put_stones() {
             let (count_black_stones, count_white_stones) = board.game_result();
@@ -87,6 +79,12 @@ fn was_input_invalid(board: &mut Board, x: &usize, y: &usize) -> bool {
     }
 
     false
+}
+
+// black: odd count, white: even count
+fn get_my_turn_stone_color(count: &mut i32) -> StoneType {
+    if *count % 2 == 1 { return StoneType::BlackStone }
+    StoneType::WhiteStone
 }
 
 fn print_input_error_message() {

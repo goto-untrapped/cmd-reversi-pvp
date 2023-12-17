@@ -50,17 +50,23 @@ impl<'a> Board<'a> {
         false
     }
 
-    pub fn add_black_pos(&mut self, x_added: &usize, y_added: &usize) {
-        self.board[*x_added][*y_added] = StoneType::BlackStone.as_str();
-    }
-
-    pub fn add_white_pos(&mut self, x_added: &usize, y_added: &usize) {
-        self.board[*x_added][*y_added] = StoneType::WhiteStone.as_str();
-    }
-
-    pub fn turn_over_stones(&mut self, x_added: usize, y_added: usize, my_stone_type: StoneType) {
+    pub fn add_input_stone_pos(&mut self, x_added: &usize, y_added: &usize, my_stone_type: &StoneType) -> bool {
+        // add input stone pos to board
+        self.board[*x_added][*y_added] = my_stone_type.as_str();
+        // test updated board has count of turn over stones
         let to_turn_over_stone_type = Self::get_to_turn_over_stone_type(&my_stone_type);
+        // if have not, clear input pos from board and return false
+        let pos_vec_to_turn_over = self.turn_over_stones(*x_added, *y_added, &to_turn_over_stone_type, my_stone_type);
+        if pos_vec_to_turn_over.len() == 0 {
+            self.board[*x_added][*y_added] = StoneType::NoStone.as_str();
+            return false;
+        }
+        // if have, update board and return true
+        Self::update_stones_color(self, &pos_vec_to_turn_over, &to_turn_over_stone_type);
+        true
+    }
 
+    pub fn turn_over_stones(&mut self, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) -> Vec<(usize, usize)> {
         // define new vec to record all stones pos to turn over
         let mut pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
 
@@ -81,7 +87,7 @@ impl<'a> Board<'a> {
         // ↘
         Self::append_to_bottom_right_pos_to_turn_over(self, &mut pos_vec_to_turn_over, x_added, y_added, &to_turn_over_stone_type, &my_stone_type);
 
-        Self::update_stones_color(self, &pos_vec_to_turn_over, &to_turn_over_stone_type);
+        pos_vec_to_turn_over
     }
 
     pub fn is_no_pos_to_put_stones(&mut self) -> bool {
