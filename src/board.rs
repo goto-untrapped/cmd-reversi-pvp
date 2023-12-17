@@ -20,13 +20,13 @@ impl StoneType {
     }
 }
 
-pub struct Board<'a, 'b> {
+pub struct Board<'a> {
     pub board: [[&'a str;BOARD_SIZE];BOARD_SIZE],
-    pub candidate_board: [[&'b str;BOARD_SIZE];BOARD_SIZE],
+    pub candidate_board: [[&'a str;BOARD_SIZE];BOARD_SIZE],
 }
 
-impl<'a, 'b> Board<'a, 'b> {
-    pub fn created() -> Board<'a, 'b> {
+impl<'a> Board<'a> {
+    pub fn created() -> Board<'a> {
         let mut board = Board { 
             board: [[StoneType::NoStone.as_str();BOARD_SIZE];BOARD_SIZE],
             // for debug
@@ -47,18 +47,14 @@ impl<'a, 'b> Board<'a, 'b> {
         board
     }
 
-    pub fn show_candidate_stone_pos(&'b mut self, my_stone_type: &StoneType) -> [[&'b str;BOARD_SIZE];BOARD_SIZE] {
+    pub fn updated_candidate_stone_pos(&mut self, my_stone_type: &StoneType) {
         // copy board to calculate candidate positions
         self.candidate_board = self.board.clone();
         // get all positions surrounded by can turon over stones
         let candidate_pos_vec: Vec<(usize, usize)> = self.got_candidate_pos_vec(&my_stone_type);
-        for (index, candidate_pos) in candidate_pos_vec.into_iter().enumerate() {
-            // loop each element can turn over stones vec, put number to the positions
-            // self.candidate_board[candidate_pos.0][candidate_pos.1] = (index+1).to_string().as_str();
+        for positions in candidate_pos_vec {
+            self.candidate_board[positions.0][positions.1] = "*";
         }
-
-        // return copied board
-        self.candidate_board
     }
 
     fn got_candidate_pos_vec(&mut self, my_stone_type: &StoneType) -> Vec<(usize, usize)> {
@@ -70,35 +66,51 @@ impl<'a, 'b> Board<'a, 'b> {
                 if self.board[x][y] != StoneType::NoStone.as_str() {
                     // ↑
                     if 1 < x {
-                        candidate_vec.append(&mut vec![(x-1, y)]);
+                        if !self.is_pos_has_stone_already(&(x-1), &y) {
+                            candidate_vec.append(&mut vec![(x-1, y)]);
+                        }
                     }
                     // ↓
                     if x + 1 < BOARD_SIZE {
-                        candidate_vec.append(&mut vec![(x+1, y)]);
+                        if !self.is_pos_has_stone_already(&(x+1), &y) {
+                            candidate_vec.append(&mut vec![(x+1, y)]);
+                        }
                     }
                     // ←
                     if 1 < y {
-                        candidate_vec.append(&mut vec![(x, y-1)]);
+                        if !self.is_pos_has_stone_already(&x, &(y-1)) {
+                            candidate_vec.append(&mut vec![(x, y-1)]);
+                        }
                     }
                     // →
                     if y + 1 < BOARD_SIZE {
-                        candidate_vec.append(&mut vec![(x, y+1)]);
+                        if !self.is_pos_has_stone_already(&x, &(y+1)) {
+                            candidate_vec.append(&mut vec![(x, y+1)]);
+                        }
                     }
                     // ↖
                     if 1 < x && 1 < y {
-                        candidate_vec.append(&mut vec![(x-1, y-1)]);
+                        if !self.is_pos_has_stone_already(&(x-1), &(y-1)) {
+                            candidate_vec.append(&mut vec![(x-1, y-1)]);
+                        }
                     }
                     // ↙
                     if x + 1 < BOARD_SIZE && 1 < y {
-                        candidate_vec.append(&mut vec![(x+1, y-1)]);
+                        if !self.is_pos_has_stone_already(&(x+1), &(y-1)) {
+                            candidate_vec.append(&mut vec![(x+1, y-1)]);
+                        }
                     }
                     // ↗
-                    if x < 1 && y + 1 < BOARD_SIZE {
-                        candidate_vec.append(&mut vec![(x-1, y+1)]);
+                    if 1 < x && y + 1 < BOARD_SIZE {
+                        if !self.is_pos_has_stone_already(&(x-1), &(y+1)) {
+                            candidate_vec.append(&mut vec![(x-1, y+1)]);
+                        }
                     }
                     // ↘
                     if x + 1 < BOARD_SIZE && y + 1 < BOARD_SIZE {
-                        candidate_vec.append(&mut vec![(x+1, y+1)]);
+                        if !self.is_pos_has_stone_already(&(x+1), &(y+1)) {
+                            candidate_vec.append(&mut vec![(x+1, y+1)]);
+                        }
                     }
                 }
             }
@@ -110,9 +122,9 @@ impl<'a, 'b> Board<'a, 'b> {
         // check each position and set to another vec if can turn over stones
         let mut turn_over_stones_vec: Vec<(usize, usize)> = Vec::new();
         for (x, y) in candidate_pos_set {
-            let mut current_turn_over_pos_vec = self.get_turn_over_stones_vec(x, y, &to_turn_over_stone_type, my_stone_type);
+            let current_turn_over_pos_vec = self.get_turn_over_stones_vec(x, y, &to_turn_over_stone_type, my_stone_type);
             if 1 <= current_turn_over_pos_vec.len() {
-                turn_over_stones_vec.append(&mut current_turn_over_pos_vec);
+                turn_over_stones_vec.push((x,y));
             }
         }
 

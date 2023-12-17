@@ -2,16 +2,17 @@ use std::{io, process::exit};
 
 use board::{Board, BOARD_SIZE, StoneType};
 
-
 mod board;
 
 fn main() {
     let mut board: Board = board::Board::created();
-    update_screen(&board);
+    update_screen(&board.board);
     let mut put_stone_count = 1;
 
     loop {
-        
+        let my_stone_type = get_my_turn_stone_color(&mut put_stone_count);
+        board.updated_candidate_stone_pos(&my_stone_type);
+        update_screen(&board.candidate_board);
         // put black stone
         let (x, y);
         match got_input_pos() {
@@ -28,13 +29,12 @@ fn main() {
             print_input_error_message();
             continue;
         }
-        let my_stone_type = get_my_turn_stone_color(&mut put_stone_count);
         // if input stone position can't turn over any stones, need again
-        if !board.add_input_stone_pos(&x, &y, &my_stone_type) {
+        if !&board.add_input_stone_pos(&x, &y, &my_stone_type) {
             println!("can't turn over any stones, choose another position");
             continue;
         }
-        update_screen(&board);
+        update_screen(&board.board);
         put_stone_count += 1;
 
         // game set
@@ -91,7 +91,7 @@ fn print_input_error_message() {
     println!("Invalid input! Please input again.");
 }
 
-fn update_screen(board: &Board) {
+fn update_screen(board: &[[& str;BOARD_SIZE];BOARD_SIZE]) {
     // clear the screen
     print!("{}[2J", 27 as char);
     println!();
@@ -103,14 +103,22 @@ fn update_screen(board: &Board) {
     }
     println!();
 
+    let mut count: String = "1".to_owned();
     // decorate screen: show y position and stones position
     let mut y_index = 0;
-    for line in board.board {
+    for line in board {
         print!("{} ", y_index);
         y_index +=1;
 
         for mark in line {
-            print!("{} ", mark);
+            if mark == &"*" {
+                print!("{} ", count);
+                let mut count_i32: i32 = count.parse().unwrap();
+                count_i32 += 1;
+                count = count_i32.to_string();
+            } else {
+                print!("{} ", mark);
+            }
         }
         println!();
     }
