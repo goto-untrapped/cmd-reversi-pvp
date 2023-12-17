@@ -6,18 +6,18 @@ mod board;
 
 fn main() {
     let mut board: Board = board::Board::created();
-    update_screen(&board.board);
+    // update_screen(&board.candidate_board);
     let mut put_stone_count = 1;
 
     loop {
-        let my_stone_type = get_my_turn_stone_color(&mut put_stone_count);
+        let my_stone_type = got_my_turn_stone_color(&mut put_stone_count);
         board.updated_candidate_stone_pos(&my_stone_type);
         update_screen(&board.candidate_board);
         // put black stone
-        let (x, y);
+        let pos_number: usize;
         match got_input_pos() {
-            Some((x_input, y_input)) => {
-                (x, y) = (x_input, y_input)
+            Some(input_pos_number) => {
+                pos_number = input_pos_number
             },
             None => {
                 print_input_error_message();
@@ -25,16 +25,16 @@ fn main() {
             },
         };
 
-        if was_input_invalid(&mut board, &x, &y) {
+        if board.is_pos_number_valid( &pos_number) {
             print_input_error_message();
             continue;
         }
         // if input stone position can't turn over any stones, need again
-        if !&board.add_input_stone_pos(&x, &y, &my_stone_type) {
+        if !&board.add_input_stone_pos(&pos_number, &my_stone_type) {
             println!("can't turn over any stones, choose another position");
             continue;
         }
-        update_screen(&board.board);
+        // update_screen(&board.board);
         put_stone_count += 1;
 
         // game set
@@ -46,43 +46,22 @@ fn main() {
     }
 }
 
-fn got_input_pos() -> Option<(usize, usize)> {
+fn got_input_pos() -> Option<usize> {
     let mut input_xy = String::new();
     io::stdin()
         .read_line(&mut input_xy)
         .expect("failed to read from stdin");
     let mut input_xy_iter = input_xy.split_whitespace();
 
-    let x_str = input_xy_iter.next()?;
-    let y_str = input_xy_iter.next()?;
+    let pos_number_str = input_xy_iter.next()?;
 
-    let x: usize = x_str.parse::<usize>().ok()?;
-    let y: usize = y_str.parse::<usize>().ok()?;
+    let pos_number: usize = pos_number_str.parse::<usize>().ok()?;
 
-    Some((x, y))
-}
-
-fn was_input_invalid(board: &mut Board, x: &usize, y: &usize) -> bool {
-    let mut is_invalid_input = false;
-
-    // invalid: input position has stone already
-    if board.is_pos_has_stone_already(&x, &y) {
-        is_invalid_input = true;
-    }
-    // invalid: input position is outside of board
-    if BOARD_SIZE <= *x || BOARD_SIZE <= *y {
-        is_invalid_input = true;
-    }
-
-    if is_invalid_input {
-        return true;
-    }
-
-    false
+    Some(pos_number)
 }
 
 // black: odd count, white: even count
-fn get_my_turn_stone_color(count: &mut i32) -> StoneType {
+fn got_my_turn_stone_color(count: &mut i32) -> StoneType {
     if *count % 2 == 1 { return StoneType::BlackStone }
     StoneType::WhiteStone
 }

@@ -66,7 +66,7 @@ impl<'a> Board<'a> {
             for y in 0..BOARD_SIZE {
                 if self.board[x][y] != StoneType::NoStone.as_str() {
                     // ↑
-                    if 1 < x {
+                    if 0 < x {
                         if !self.is_pos_has_stone_already(&(x-1), &y) {
                             candidate_pos_vec.append(&mut vec![(x-1, y)]);
                         }
@@ -78,7 +78,7 @@ impl<'a> Board<'a> {
                         }
                     }
                     // ←
-                    if 1 < y {
+                    if 0 < y {
                         if !self.is_pos_has_stone_already(&x, &(y-1)) {
                             candidate_pos_vec.append(&mut vec![(x, y-1)]);
                         }
@@ -90,19 +90,19 @@ impl<'a> Board<'a> {
                         }
                     }
                     // ↖
-                    if 1 < x && 1 < y {
+                    if 0 < x && 0 < y {
                         if !self.is_pos_has_stone_already(&(x-1), &(y-1)) {
                             candidate_pos_vec.append(&mut vec![(x-1, y-1)]);
                         }
                     }
                     // ↙
-                    if x + 1 < BOARD_SIZE && 1 < y {
+                    if x + 1 < BOARD_SIZE && 0 < y {
                         if !self.is_pos_has_stone_already(&(x+1), &(y-1)) {
                             candidate_pos_vec.append(&mut vec![(x+1, y-1)]);
                         }
                     }
                     // ↗
-                    if 1 < x && y + 1 < BOARD_SIZE {
+                    if 0 < x && y + 1 < BOARD_SIZE {
                         if !self.is_pos_has_stone_already(&(x-1), &(y+1)) {
                             candidate_pos_vec.append(&mut vec![(x-1, y+1)]);
                         }
@@ -132,19 +132,17 @@ impl<'a> Board<'a> {
                 self.turn_over_stones_vec.push((*x,*y));
             }
         }
-
     }
 
-    pub fn is_pos_has_stone_already(&mut self, x: &usize, y: &usize) -> bool {
-        if self.board[*x][*y] != StoneType::NoStone.as_str() {
+    pub fn is_pos_number_valid(&mut self, pos_number: &usize) -> bool {
+        // screen index is start from 1
+        if self.turn_over_stones_vec.len() < *pos_number {
             return true;
         }
         false
     }
 
-    pub fn add_input_stone_pos(&mut self, pos_number: &usize, y_added: &usize, my_stone_type: &StoneType) -> bool {
-        println!("{}", self.turn_over_stones_vec.len());
-        println!("{:?}", self.turn_over_stones_vec);
+    pub fn add_input_stone_pos(&mut self, pos_number: &usize, my_stone_type: &StoneType) -> bool {
         // screen index is start from 1
         let (x_added, y_added) = self.turn_over_stones_vec[pos_number-1];
 
@@ -234,6 +232,13 @@ impl<'a> Board<'a> {
             return StoneType::WhiteStone
         }
         StoneType::BlackStone
+    }
+
+    fn is_pos_has_stone_already(&mut self, x: &usize, y: &usize) -> bool {
+        if self.board[*x][*y] != StoneType::NoStone.as_str() {
+            return true;
+        }
+        false
     }
 
     fn append_to_top_pos_to_turn_over(&mut self, pos_vec_to_turn_over: &mut Vec<(usize, usize)>, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) {
