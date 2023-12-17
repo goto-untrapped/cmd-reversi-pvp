@@ -45,6 +45,7 @@ fn main() {
         board.turn_over_stones(x, y, StoneType::WhiteStone);
         update_screen(&board);
         
+        // game set
         if board.is_no_pos_to_put_stones() {
             let (count_black_stones, count_white_stones) = board.game_result();
             print_game_result(count_black_stones, count_white_stones);
@@ -118,7 +119,7 @@ fn update_screen(board: &Board) {
 }
 
 fn print_game_result(count_black_stones: i32, count_white_stones: i32) {
-    let winner : &str = {
+    let winner: &str = {
         if count_white_stones < count_black_stones { "BLACK" }
         else if count_black_stones < count_white_stones { "WHITE" }
         else { "DRAW" }
