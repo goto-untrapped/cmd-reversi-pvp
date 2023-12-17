@@ -1,4 +1,4 @@
-use std::io;
+use std::{io, process::exit};
 
 use board::{Board, BOARD_SIZE, StoneType};
 
@@ -10,52 +10,91 @@ fn main() {
     update_screen(&board);
 
     loop {
-        // place black stone
-        let (x, y) = got_input_pos();
-        if was_input_invalid(&x, &y) {
+        // put black stone
+        let (x, y);
+        match got_input_pos() {
+            Some((x_input, y_input)) => {
+                (x, y) = (x_input, y_input)
+            },
+            None => {
+                print_input_error_message();
+                continue;
+            },
+        };
+
+        if was_input_invalid(&mut board, &x, &y) {
+            print_input_error_message();
             continue;
         }
         board.add_black_pos(&x, &y);
         board.turn_over_stones(x, y, StoneType::BlackStone);
         update_screen(&board);
 
-        // place white stone
-        let (x, y) = got_input_pos();
-        if was_input_invalid(&x, &y) {
-            continue;
-        }
+        // put white stone
+        let (x, y);
+        match got_input_pos() {
+            Some((x_input, y_input)) => {
+                (x, y) = (x_input, y_input)
+            },
+            None => {
+                print_input_error_message();
+                continue;
+            },
+        };
         board.add_white_pos(&x, &y);
         board.turn_over_stones(x, y, StoneType::WhiteStone);
         update_screen(&board);
+        
+        if board.is_no_pos_to_put_stones() {
+            let (count_black_stones, count_white_stones) = board.game_result();
+            print_game_result(count_black_stones, count_white_stones);
+            exit(0);
+        }
     }
 }
 
-fn got_input_pos() -> (usize, usize) {
+fn got_input_pos() -> Option<(usize, usize)> {
     let mut input_xy = String::new();
     io::stdin()
         .read_line(&mut input_xy)
         .expect("failed to read from stdin");
     let mut input_xy_iter = input_xy.split_whitespace();
 
-    let x:usize = input_xy_iter.next().unwrap().parse::<usize>().unwrap();
-    let y:usize = input_xy_iter.next().unwrap().parse::<usize>().unwrap();
-    
-    (x, y)
+    let x_str = input_xy_iter.next()?;
+    let y_str = input_xy_iter.next()?;
+
+    let x: usize = x_str.parse::<usize>().ok()?;
+    let y: usize = y_str.parse::<usize>().ok()?;
+
+    Some((x, y))
 }
 
-fn was_input_invalid(x: &usize, y: &usize) -> bool {
+fn was_input_invalid(board: &mut Board, x: &usize, y: &usize) -> bool {
+    let mut is_invalid_input = false;
+
+    // invalid: input position has stone already
+    if board.is_pos_has_stone_already(&x, &y) {
+        is_invalid_input = true;
+    }
     // invalid: input position is outside of board
     if BOARD_SIZE <= *x || BOARD_SIZE <= *y {
-        println!("Invalid input! Please input again.");
+        is_invalid_input = true;
+    }
+
+    if is_invalid_input {
         return true;
     }
 
     false
 }
 
+fn print_input_error_message() {
+    println!("Invalid input! Please input again.");
+}
+
 fn update_screen(board: &Board) {
     // clear the screen
-    // print!("{}[2J", 27 as char);
+    print!("{}[2J", 27 as char);
     println!();
 
     // decorate screen: show x position
@@ -76,4 +115,16 @@ fn update_screen(board: &Board) {
         }
         println!();
     }
+}
+
+fn print_game_result(count_black_stones: i32, count_white_stones: i32) {
+    let winner : &str = {
+        if count_white_stones < count_black_stones { "BLACK" }
+        else if count_black_stones < count_white_stones { "WHITE" }
+        else { "DRAW" }
+    };
+
+    println!("Winner is {}", winner);
+    println!("black stones: {}", count_black_stones);
+    println!("white stones: {}", count_white_stones);
 }
