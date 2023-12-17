@@ -41,6 +41,7 @@ fn main() {
 
         // game set
         if board.is_no_pos_to_put_stones() {
+            update_screen(&board.board);
             let (count_black_stones, count_white_stones) = board.game_result();
             print_game_result(count_black_stones, count_white_stones);
             exit(0);
