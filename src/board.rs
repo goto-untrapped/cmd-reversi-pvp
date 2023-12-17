@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 
 pub const BOARD_SIZE: usize = 8;
 
@@ -18,12 +20,13 @@ impl StoneType {
     }
 }
 
-pub struct Board<'a> {
+pub struct Board<'a, 'b> {
     pub board: [[&'a str;BOARD_SIZE];BOARD_SIZE],
+    pub candidate_board: [[&'b str;BOARD_SIZE];BOARD_SIZE],
 }
 
-impl<'a> Board<'a> {
-    pub fn created() -> Board<'a> {
+impl<'a, 'b> Board<'a, 'b> {
+    pub fn created() -> Board<'a, 'b> {
         let mut board = Board { 
             board: [[StoneType::NoStone.as_str();BOARD_SIZE];BOARD_SIZE],
             // for debug
@@ -37,10 +40,83 @@ impl<'a> Board<'a> {
             //     ["-", "-", "-", "-", "-", "-", "-", "-"],
             //     ["-", "-", "-", "-", "-", "-", "-", "-"],
             // ]
+            candidate_board: [[StoneType::NoStone.as_str();BOARD_SIZE];BOARD_SIZE],
         };
         board.init_pos();
 
         board
+    }
+
+    pub fn show_candidate_stone_pos(&'b mut self, my_stone_type: &StoneType) -> [[&'b str;BOARD_SIZE];BOARD_SIZE] {
+        // copy board to calculate candidate positions
+        self.candidate_board = self.board.clone();
+        // get all positions surrounded by can turon over stones
+        let candidate_pos_vec: Vec<(usize, usize)> = self.got_candidate_pos_vec(&my_stone_type);
+        for (index, candidate_pos) in candidate_pos_vec.into_iter().enumerate() {
+            // loop each element can turn over stones vec, put number to the positions
+            // self.candidate_board[candidate_pos.0][candidate_pos.1] = (index+1).to_string().as_str();
+        }
+
+        // return copied board
+        self.candidate_board
+    }
+
+    fn got_candidate_pos_vec(&mut self, my_stone_type: &StoneType) -> Vec<(usize, usize)> {
+        let to_turn_over_stone_type = Self::get_to_turn_over_stone_type(&my_stone_type);
+        let mut candidate_vec: Vec<(usize, usize)> = Vec::new();
+        // get positions that surrounded by put stones
+        for x in 0..BOARD_SIZE {
+            for y in 0..BOARD_SIZE {
+                if self.board[x][y] != StoneType::NoStone.as_str() {
+                    // ↑
+                    if 1 < x {
+                        candidate_vec.append(&mut vec![(x-1, y)]);
+                    }
+                    // ↓
+                    if x + 1 < BOARD_SIZE {
+                        candidate_vec.append(&mut vec![(x+1, y)]);
+                    }
+                    // ←
+                    if 1 < y {
+                        candidate_vec.append(&mut vec![(x, y-1)]);
+                    }
+                    // →
+                    if y + 1 < BOARD_SIZE {
+                        candidate_vec.append(&mut vec![(x, y+1)]);
+                    }
+                    // ↖
+                    if 1 < x && 1 < y {
+                        candidate_vec.append(&mut vec![(x-1, y-1)]);
+                    }
+                    // ↙
+                    if x + 1 < BOARD_SIZE && 1 < y {
+                        candidate_vec.append(&mut vec![(x+1, y-1)]);
+                    }
+                    // ↗
+                    if x < 1 && y + 1 < BOARD_SIZE {
+                        candidate_vec.append(&mut vec![(x-1, y+1)]);
+                    }
+                    // ↘
+                    if x + 1 < BOARD_SIZE && y + 1 < BOARD_SIZE {
+                        candidate_vec.append(&mut vec![(x+1, y+1)]);
+                    }
+                }
+            }
+        }
+
+        // remove duplicate
+        let candidate_pos_set: HashSet<(usize, usize)> = candidate_vec.into_iter().collect();
+
+        // check each position and set to another vec if can turn over stones
+        let mut turn_over_stones_vec: Vec<(usize, usize)> = Vec::new();
+        for (x, y) in candidate_pos_set {
+            let mut current_turn_over_pos_vec = self.get_turn_over_stones_vec(x, y, &to_turn_over_stone_type, my_stone_type);
+            if 1 <= current_turn_over_pos_vec.len() {
+                turn_over_stones_vec.append(&mut current_turn_over_pos_vec);
+            }
+        }
+
+        turn_over_stones_vec
     }
 
     pub fn is_pos_has_stone_already(&mut self, x: &usize, y: &usize) -> bool {
@@ -56,7 +132,7 @@ impl<'a> Board<'a> {
         // test updated board has count of turn over stones
         let to_turn_over_stone_type = Self::get_to_turn_over_stone_type(&my_stone_type);
         // if have not, clear input pos from board and return false
-        let pos_vec_to_turn_over = self.turn_over_stones(*x_added, *y_added, &to_turn_over_stone_type, my_stone_type);
+        let pos_vec_to_turn_over = self.get_turn_over_stones_vec(*x_added, *y_added, &to_turn_over_stone_type, my_stone_type);
         if pos_vec_to_turn_over.len() == 0 {
             self.board[*x_added][*y_added] = StoneType::NoStone.as_str();
             return false;
@@ -66,7 +142,7 @@ impl<'a> Board<'a> {
         true
     }
 
-    pub fn turn_over_stones(&mut self, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) -> Vec<(usize, usize)> {
+    pub fn get_turn_over_stones_vec(&mut self, x_added: usize, y_added: usize, to_turn_over_stone_type: &StoneType, my_stone_type: &StoneType) -> Vec<(usize, usize)> {
         // define new vec to record all stones pos to turn over
         let mut pos_vec_to_turn_over: Vec<(usize, usize)> = Vec::new();
 
