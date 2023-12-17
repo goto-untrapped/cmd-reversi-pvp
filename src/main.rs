@@ -93,7 +93,7 @@ fn print_input_error_message() {
 
 fn update_screen(board: &[[& str;BOARD_SIZE];BOARD_SIZE]) {
     // clear the screen
-    print!("{}[2J", 27 as char);
+    // print!("{}[2J", 27 as char);
     println!();
 
     // decorate screen: show x position
