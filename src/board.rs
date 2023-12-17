@@ -12,8 +12,8 @@ pub enum StoneType {
 impl StoneType {
     fn as_str(&self) -> &'static str {
         match self {
-            StoneType::BlackStone => "x",
-            StoneType::WhiteStone => "o",
+            StoneType::BlackStone => "●",
+            StoneType::WhiteStone => "○",
             StoneType::NoStone => "-",
         }
     }
@@ -56,6 +56,13 @@ impl<'a> Board<'a> {
         for positions in &self.turn_over_stones_vec {
             self.candidate_board[positions.0][positions.1] = "*";
         }
+    }
+
+    pub fn is_no_stone_can_turn_over(&mut self) -> bool {
+        if self.turn_over_stones_vec.len() == 0 {
+            return true;
+        }
+        false
     }
 
     fn got_candidate_pos_vec(&mut self, my_stone_type: &StoneType) {

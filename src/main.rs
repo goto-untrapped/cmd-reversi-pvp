@@ -6,12 +6,15 @@ mod board;
 
 fn main() {
     let mut board: Board = board::Board::created();
-    // update_screen(&board.candidate_board);
     let mut put_stone_count = 1;
 
     loop {
         let my_stone_type = got_my_turn_stone_color(&mut put_stone_count);
         board.updated_candidate_stone_pos(&my_stone_type);
+        if board.is_no_stone_can_turn_over() {
+            put_stone_count += 1;
+            continue;
+        }
         update_screen(&board.candidate_board);
         // put black stone
         let pos_number: usize;
@@ -34,7 +37,6 @@ fn main() {
             println!("can't turn over any stones, choose another position");
             continue;
         }
-        // update_screen(&board.board);
         put_stone_count += 1;
 
         // game set
@@ -71,36 +73,36 @@ fn print_input_error_message() {
 }
 
 fn update_screen(board: &[[& str;BOARD_SIZE];BOARD_SIZE]) {
-    // clear the screen
-    // print!("{}[2J", 27 as char);
     println!();
 
     // decorate screen: show x position
-    print!("  ");
-    for x_index in 0..BOARD_SIZE {
-        print!("{} ", x_index);
+    for _ in 0..BOARD_SIZE-1 {
+        print!("* * ");
     }
     println!();
 
     let mut count: String = "1".to_owned();
     // decorate screen: show y position and stones position
-    let mut y_index = 0;
     for line in board {
-        print!("{} ", y_index);
-        y_index +=1;
+        print!("* ");
 
         for mark in line {
             if mark == &"*" {
-                print!("{} ", count);
+                print!("{0:<3}", count);
                 let mut count_i32: i32 = count.parse().unwrap();
                 count_i32 += 1;
                 count = count_i32.to_string();
             } else {
-                print!("{} ", mark);
+                print!("{}  ", mark);
             }
         }
-        println!();
+        println!("* ");
     }
+
+    for _ in 0..BOARD_SIZE-1 {
+        print!("* * ");
+    }
+    println!();
 }
 
 fn print_game_result(count_black_stones: i32, count_white_stones: i32) {
